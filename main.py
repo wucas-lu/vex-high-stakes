@@ -6,16 +6,17 @@ import urandom
 brain=Brain()
 
 # Robot configuration code
-left_motor_a = Motor(Ports.PORT18, GearSetting.RATIO_18_1, False)
-left_motor_b = Motor(Ports.PORT20, GearSetting.RATIO_18_1, False)
+left_motor_a = Motor(Ports.PORT19, GearSetting.RATIO_18_1, False)
+left_motor_b = Motor(Ports.PORT17, GearSetting.RATIO_18_1, False)
 left_drive_smart = MotorGroup(left_motor_a, left_motor_b)
-right_motor_a = Motor(Ports.PORT17, GearSetting.RATIO_18_1, True)
-right_motor_b = Motor(Ports.PORT19, GearSetting.RATIO_18_1, True)
+right_motor_a = Motor(Ports.PORT20, GearSetting.RATIO_18_1, True)
+right_motor_b = Motor(Ports.PORT18, GearSetting.RATIO_18_1, True)
 right_drive_smart = MotorGroup(right_motor_a, right_motor_b)
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 319.19, 295, 40, MM, 1)
-controller_1 = Controller(PRIMARY)
-stake_motor = Motor(Ports.PORT2, GearSetting.RATIO_18_1, False)
+stake_motor = Motor(Ports.PORT3, GearSetting.RATIO_18_1, False)
 intake_motor = Motor(Ports.PORT10, GearSetting.RATIO_18_1, False)
+controller_1 = Controller(PRIMARY)
+intake_motor2 = Motor(Ports.PORT11, GearSetting.RATIO_18_1, False)
 
 
 # wait for rotation sensor to fully initialize
@@ -46,12 +47,15 @@ print("\033[2J")
 
 
 # define variables used for controlling motors based on controller inputs
+controller_1_left_shoulder_control_motors_stopped = True
+controller_1_up_down_buttons_control_motors_stopped = True
+controller_1_x_b_buttons_control_motors_stopped = True
 drivetrain_l_needs_to_be_stopped_controller_1 = False
 drivetrain_r_needs_to_be_stopped_controller_1 = False
 
 # define a task that will handle monitoring inputs from controller_1
 def rc_auto_loop_function_controller_1():
-    global drivetrain_l_needs_to_be_stopped_controller_1, drivetrain_r_needs_to_be_stopped_controller_1, remote_control_code_enabled
+    global drivetrain_l_needs_to_be_stopped_controller_1, drivetrain_r_needs_to_be_stopped_controller_1, controller_1_left_shoulder_control_motors_stopped, controller_1_up_down_buttons_control_motors_stopped, controller_1_x_b_buttons_control_motors_stopped, remote_control_code_enabled
     # process the controller input every 20 milliseconds
     # update the motors based on the input values
     while True:
@@ -96,6 +100,45 @@ def rc_auto_loop_function_controller_1():
             if drivetrain_r_needs_to_be_stopped_controller_1:
                 right_drive_smart.set_velocity(drivetrain_right_side_speed, PERCENT)
                 right_drive_smart.spin(FORWARD)
+            # check the buttonL1/buttonL2 status
+            # to control stake_motor
+            if controller_1.buttonL1.pressing():
+                stake_motor.spin(FORWARD)
+                controller_1_left_shoulder_control_motors_stopped = False
+            elif controller_1.buttonL2.pressing():
+                stake_motor.spin(REVERSE)
+                controller_1_left_shoulder_control_motors_stopped = False
+            elif not controller_1_left_shoulder_control_motors_stopped:
+                stake_motor.stop()
+                # set the toggle so that we don't constantly tell the motor to stop when
+                # the buttons are released
+                controller_1_left_shoulder_control_motors_stopped = True
+            # check the buttonUp/buttonDown status
+            # to control intake_motor
+            if controller_1.buttonUp.pressing():
+                intake_motor.spin(FORWARD)
+                controller_1_up_down_buttons_control_motors_stopped = False
+            elif controller_1.buttonDown.pressing():
+                intake_motor.spin(REVERSE)
+                controller_1_up_down_buttons_control_motors_stopped = False
+            elif not controller_1_up_down_buttons_control_motors_stopped:
+                intake_motor.stop()
+                # set the toggle so that we don't constantly tell the motor to stop when
+                # the buttons are released
+                controller_1_up_down_buttons_control_motors_stopped = True
+            # check the buttonX/buttonB status
+            # to control intake_motor2
+            if controller_1.buttonX.pressing():
+                intake_motor2.spin(FORWARD)
+                controller_1_x_b_buttons_control_motors_stopped = False
+            elif controller_1.buttonB.pressing():
+                intake_motor2.spin(REVERSE)
+                controller_1_x_b_buttons_control_motors_stopped = False
+            elif not controller_1_x_b_buttons_control_motors_stopped:
+                intake_motor2.stop()
+                # set the toggle so that we don't constantly tell the motor to stop when
+                # the buttons are released
+                controller_1_x_b_buttons_control_motors_stopped = True
         # wait before repeating the process
         wait(20, MSEC)
 
@@ -109,54 +152,119 @@ rc_auto_loop_thread_controller_1 = Thread(rc_auto_loop_function_controller_1)
 # Hai likes Molly v1 by Team 1599W
 from vex import *
 
-STAKE_UNCLAMPED_DEGREES = 0
-STAKE_CLAMPED_DEGREES = 0
+STAKE_UNCLAMPED_DEGREES = 150
+STAKE_CLAMPED_DEGREES = -70
 
 stake_clamped = False
+intake_spinning = False
 
-def print(*args):
-    arguments = []
-    for argument in args:
-        arguments.insert(str(argument))
-    
-    content = ' '.join(arguments)
-
-    controller_1.screen.print(content)
-    brain.screen.print(content)
+def log(message):
+    brain.screen.next_row()
+    brain.screen.print("> " + message)
+    controller_1.screen.next_row()
+    controller_1.screen.print("> " + message)
 
 def toggle_stake():
     global STAKE_UNCLAMPED_DEGREES
     global STAKE_CLAMPED_DEGREES
     global stake_clamped
+    global log
 
-    stake_motor.spin_to_position(
-        STAKE_UNCLAMPED_DEGREES if stake_clamped
-            else STAKE_CLAMPED_DEGREES
-    )
+    log("Toggling stake")
+
+    stake_motor.stop()
+
+    if stake_clamped:
+        stake_motor.spin_to_position(STAKE_CLAMPED_DEGREES)
+    else:
+        stake_motor.spin_to_position(STAKE_UNCLAMPED_DEGREES)
         
-    print("Clamping" if stake_clamped else "Unclamping", "stake")
+    drivetrain.set_drive_velocity(100, PERCENT)
+    drivetrain.set_turn_velocity(100, PERCENT)
+    log("Clamping stake" if stake_clamped else "Unclamping stake")
     stake_clamped = not stake_clamped
 
-def autonomous():
-    print("Starting autonomous control")
+def autonomous(): 
+    global log
+    global toggle_stake
+    log("Starting autonomous control")
 
+    drivetrain.turn(RIGHT, 35)
+    drivetrain.drive_for(REVERSE, 3000, MM)
+    drivetrain.drive_for(FORWARD, 500, MM)
+
+    intake_motor.spin(FORWARD)
+    intake_motor2.spin(FORWARD)
+
+    wait(5, SECONDS)
+
+    intake_motor.stop()
+    intake_motor2.stop()
+
+    drivetrain.turn(RIGHT, 180)
+    drivetrain.drive_for(REVERSE, 2000, MM)
+    drivetrain.turn(LEFT, 45)
+
+    intake_motor.spin(FORWARD)
+    intake_motor2.spin(FORWARD)
+
+    drivetrain.drive_for(REVERSE, 500, MM)
+
+    wait(5, SECONDS)
+
+    intake_motor.stop()
+    intake_motor2.stop()
+
+    drivetrain.turn(RIGHT, 765)
+    drivetrain.drive_for(REVERSE, 2500, MM)
+
+    intake_motor.spin(FORWARD)
+    intake_motor2.spin(FORWARD)
+
+    wait(3, SECONDS)
+
+    drivetrain.drive_for(FORWARD, 500, MM)
+    drivetrain.turn(RIGHT, 720)
+    
 def driver_control():
-    print("Starting driver control")
+    global intake_spinning
+    global log
+    log("Starting driver control")
+    log("Press X to toggle stake")
+    log("Hold right shoulder to spin intake")
+
+    controller_1.buttonX.pressed(toggle_stake)
+    toggle_stake()
+
     while True:
-        wait(20, MSEC)
+        wait(10, MSEC)
+        if controller_1.buttonR2.pressing():
+            intake_motor.spin(FORWARD)
+            intake_motor2.spin(FORWARD)
+
+            if not intake_spinning:
+                log("Starting intake")
+                intake_spinning = True
+        else:
+            intake_motor.stop()
+            intake_motor2.stop()
+
+            if intake_spinning:
+                log("Stopping intake")
+                intake_spinning = False
 
 comp = Competition(driver_control, autonomous)
 
 brain.screen.clear_screen()
 controller_1.screen.clear_screen()
 
-print("Starting Hai likes Molly v1")
-print("Press X to toggle stake clamp")
+log("Starting Hai likes Molly v1")
+
+drivetrain.set_drive_velocity(100, PERCENT)
+drivetrain.set_turn_velocity(100, PERCENT)
 
 intake_motor.set_velocity(100, PERCENT)
-intake_motor.spin(FORWARD)
+intake_motor2.set_velocity(75, PERCENT)
+
 stake_motor.set_velocity(100, PERCENT)
-
 stake_motor.spin_to_position(STAKE_UNCLAMPED_DEGREES)
-controller_1.buttonX.pressed(toggle_stake)
-
