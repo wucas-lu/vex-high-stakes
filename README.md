@@ -5,6 +5,8 @@
 Competition code, dubbed Hai likes Molly v2 for VRC High Stakes as team 1599W
 aka. Wucas Lu. Should be operational for Vietnam nationals :)
 
+us <3 shaft collars
+
 ## Usage
 
 ```sh
