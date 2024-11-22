@@ -7,6 +7,8 @@ aka. Wucas Lu. Should be operational for Vietnam nationals :)
 
 us <3 shaft collars
 
+team [1599V](https://github.com/alexngyn/1599V-VRC-HIGH-STAKES) our biggest opp
+
 ## Usage
 
 ```sh
