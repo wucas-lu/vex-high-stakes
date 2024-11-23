@@ -3,76 +3,49 @@
 
 extern crate alloc;
 
-use core::time::Duration;
-
+use anyhow::Result;
 use evian::prelude::*;
-use vexide::prelude::*;
+use log::info;
+use vex_high_stakes::Robot;
+use vexide::{prelude::*, startup::banner::themes::THEME_MURICA};
 
-// Hai likes Molly v2 by team 1599W
-struct Robot {
-    controller: Controller,
-    drivetrain: Drivetrain<Differential, ()>,
+const TEAM_BANNER: &str = " \
+ __   _____  _____  _____  _    _
+/  | |  ___||  _  ||  _  || |  | |
+`| | |___ \\ | |_| || |_| || |  | |
+ | |     \\ \\\\____ |\\____ || |/\\| |
+_| |_/\\__/ /.___/ /.___/ /\\  /\\  /
+\\___/\\____/ \\____/ \\____/  \\/  \\/
 
-    stake_piston: AdiDigitalOut,
-}
+W U C A S   L U   1 5 9 9 W   S S I S
+Hai Likes Molly version 2.0";
 
-impl Compete for Robot {
-    async fn autonomous(&mut self) {
-        println!("Starting autonomous control");
-    }
+#[vexide::main(banner(theme = THEME_MURICA))]
+async fn main(peripherals: Peripherals) -> Result<()> {
+    info!("{}", TEAM_BANNER);
 
-    async fn driver(&mut self) {
-        println!("Starting driver control");
+    let mut intake_motor = Motor::new(peripherals.port_1, Gearset::Red, Direction::Forward);
+    intake_motor.set_velocity(100)?;
 
-        let mut stake_clamped = false;
-
-        loop {
-            let controller = self.controller.state().unwrap_or_default();
-
-            _ = self.drivetrain.motors.set_voltages((
-                controller.left_stick.y() * Motor::V5_MAX_VOLTAGE,
-                controller.right_stick.y() * Motor::V5_MAX_VOLTAGE,
-            ));
-
-            if controller.button_x.is_now_pressed() {
-                if stake_clamped {
-                    println!("Unclamping stake");
-                    _ = self.stake_piston.set_low();
-                } else {
-                    println!("Clamping stake");
-                    _ = self.stake_piston.set_high();
-                }
-
-                stake_clamped = !stake_clamped;
-            }
-
-            sleep(Duration::from_millis(25)).await;
-        }
-    }
-}
-
-#[vexide::main(banner(enabled = false))]
-async fn main(peripherals: Peripherals) {
-    println!("Hai likes Molly v2 by team 1599W");
-
-    Robot {
+    let robot = Robot {
         controller: peripherals.primary_controller,
         drivetrain: Drivetrain::new(
             Differential::new(
                 shared_motors![
-                    Motor::new(peripherals.port_19, Gearset::Green, Direction::Forward),
-                    Motor::new(peripherals.port_17, Gearset::Green, Direction::Forward),
-                ],
-                shared_motors![
                     Motor::new(peripherals.port_20, Gearset::Green, Direction::Forward),
                     Motor::new(peripherals.port_18, Gearset::Green, Direction::Forward),
                 ],
+                shared_motors![
+                    Motor::new(peripherals.port_17, Gearset::Green, Direction::Forward),
+                    Motor::new(peripherals.port_19, Gearset::Green, Direction::Forward),
+                ],
             ),
-            (),
+            None,
         ),
-
+        intake_motor,
         stake_piston: AdiDigitalOut::new(peripherals.adi_a),
-    }
-    .compete()
-    .await;
+    };
+
+    info!("Starting competition");
+    robot.compete().await;
 }
