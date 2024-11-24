@@ -13,14 +13,12 @@ pub struct Robot {
 
 impl Compete for Robot {
     async fn autonomous(&mut self) -> () {
-        info!("Starting autonomous control");
+        info!("starting autonomous control");
         autonomous_control(self).await.unwrap();
-        ()
     }
 
     async fn driver(&mut self) -> () {
-        info!("Starting driver control");
+        info!("starting driver control");
         driver_control(self).await.unwrap();
-        ()
     }
 }
