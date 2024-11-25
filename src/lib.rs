@@ -3,15 +3,17 @@
 
 mod autonomous;
 mod driver;
+mod holonomic;
 mod robot;
 mod screen;
 
 use anyhow::Result;
 pub use autonomous::autonomous_control;
 pub use driver::driver_control;
+pub use holonomic::*;
 use log::warn;
 pub use robot::Robot;
-pub use vexide::prelude::*;
+use vexide::prelude::*;
 
 pub async fn check_motor(motor: &mut Motor) -> Result<()> {
     let over_temperature = motor.is_over_temperature()?;
@@ -71,7 +73,7 @@ macro_rules! observe_motors {
 */
 #[macro_export]
 macro_rules! set_velocities {
-    ($v:literal, $( $m:expr ),* $(,)?) => {{
+    ($v:expr, $( $m:expr ),* $(,)?) => {{
         $(
             $m.set_velocity($v)?;
         )*

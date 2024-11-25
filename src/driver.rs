@@ -1,19 +1,20 @@
-use core::time::Duration;
+use core::{f64::consts::PI, time::Duration};
 
 use anyhow::{Context, Result};
 use log::info;
 use vexide::{devices::controller::ControllerState, prelude::*};
 
-use crate::Robot;
+use crate::*;
 
 const INTAKE_SPINNING_VELOCITY: i32 = 100;
 const INTAKE_STOPPED_VELOCITY: i32 = 0;
 
 fn process_controller_state(robot: &mut Robot, controller: ControllerState) -> Result<()> {
-    robot.drivetrain.motors.set_voltages((
-        controller.left_stick.y() * Motor::V5_MAX_VOLTAGE,
-        controller.right_stick.y() * Motor::V5_MAX_VOLTAGE,
-    ))?;
+    robot.drivetrain.update(
+        Some(radians_from_controller_joystick(controller.left_stick)),
+        Some(PI / 2.0 - speed_from_controller_joystick(controller.left_stick)),
+        None,
+    );
 
     if controller.button_x.is_now_pressed() {
         if robot.stake_piston.is_high()? {

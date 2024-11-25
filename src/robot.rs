@@ -2,11 +2,11 @@ use evian::prelude::*;
 use log::info;
 use vexide::prelude::*;
 
-use crate::{autonomous_control, driver_control};
+use crate::{autonomous_control, driver_control, Holonomic};
 
 pub struct Robot {
     pub controller: Controller,
-    pub drivetrain: Drivetrain<Differential, Option<()>>,
+    pub drivetrain: Holonomic,
     pub intake_motor: Motor,
     pub stake_piston: AdiDigitalOut,
 }
