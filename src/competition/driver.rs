@@ -1,16 +1,18 @@
+//! Implements competition driver control.
+
 use core::{f64::consts::PI, time::Duration};
 
 use anyhow::{Context, Result};
 use log::info;
 use vexide::{devices::controller::ControllerState, prelude::*};
 
-use crate::*;
+use crate::prelude::*;
 
 const INTAKE_SPINNING_VELOCITY: i32 = 100;
 const INTAKE_STOPPED_VELOCITY: i32 = 0;
 
-fn process_controller_state(robot: &mut Robot, controller: ControllerState) -> Result<()> {
-    robot.drivetrain.update(
+fn process_controller_state(robot: &mut CompetitionRobot, controller: ControllerState) -> Result<()> {
+    robot.drivetrain.set(
         Some(radians_from_controller_joystick(controller.left_stick)),
         Some(PI / 2.0 - speed_from_controller_joystick(controller.left_stick)),
         None,
@@ -35,7 +37,7 @@ fn process_controller_state(robot: &mut Robot, controller: ControllerState) -> R
     Ok(())
 }
 
-pub async fn driver_control(robot: &mut Robot) -> Result<()> {
+pub async fn driver_control(robot: &mut CompetitionRobot) -> Result<()> {
     robot.stake_piston.set_low()?;
     robot.intake_motor.set_velocity(INTAKE_STOPPED_VELOCITY)?;
 

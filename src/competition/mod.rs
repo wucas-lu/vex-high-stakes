@@ -1,17 +1,23 @@
+//! Exports competition autonomous control, driver control, and competition robot.
+
 use evian::prelude::*;
 use log::info;
 use vexide::prelude::*;
 
-use crate::{autonomous_control, driver_control, Holonomic};
+use crate::prelude::*;
 
-pub struct Robot {
+pub mod autonomous;
+pub mod driver;
+pub mod screen;
+
+pub struct CompetitionRobot {
     pub controller: Controller,
     pub drivetrain: Holonomic,
     pub intake_motor: Motor,
     pub stake_piston: AdiDigitalOut,
 }
 
-impl Compete for Robot {
+impl Compete for CompetitionRobot {
     async fn autonomous(&mut self) -> () {
         info!("starting autonomous control");
         autonomous_control(self).await.unwrap();

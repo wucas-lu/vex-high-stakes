@@ -4,7 +4,7 @@
             "initialization_options": {
                 "check": {
                     "targets": [
-                        "${workspaceFolder}/armv7a-vex-v5.json",
+                        // "${workspaceFolder}/armv7a-vex-v5.json",
                         "wasm32-unknown-unknown"
                     ],
                     "allTargets": false,
