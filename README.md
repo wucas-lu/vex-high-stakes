@@ -2,7 +2,7 @@
 
 # VRC High Stakes 24-25
 
-<img src="./gh-assets/wardrobe.png" width="100px" align="right"/>
+<img src="./gh-assets/wardrobe.png" width="350px" align="right"/>
 
 we <3 shaft collars
 
