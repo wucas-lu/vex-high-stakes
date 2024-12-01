@@ -3,11 +3,11 @@
         "rust-analyzer": {
             "initialization_options": {
                 "check": {
+                    "allTargets": false,
                     "targets": [
-                        // "${workspaceFolder}/armv7a-vex-v5.json",
+                        "${workspaceFolder}/armv7a-vex-v5.json",
                         "wasm32-unknown-unknown"
                     ],
-                    "allTargets": false,
                     "command": "clippy"
                 },
                 "cargo": {

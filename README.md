@@ -2,6 +2,8 @@
 
 # VRC High Stakes 24-25
 
+<img src="./gh-assets/wardrobe.png" width="100px" align="right"/>
+
 we <3 shaft collars
 
 team [1599V](https://github.com/alexngyn/1599V-VRC-HIGH-STAKES) our biggest opp
@@ -17,6 +19,7 @@ You will need either VSCode or Zed installed:
     - I prefer this but most people use VSCode
 
 ### Setting up Rust
+
 - Create a new terminal
 - Open the Terminal app
     - In VSCode press Cmd+Shift+P then Create new terminal or just
@@ -97,6 +100,10 @@ Now read documentation for Rust VEX:
 
 - [X] Competition setup via Vexide
 - [X] Reorganize to modules
-- [X] Stake piston control
-- [X] Intake control
+- [ ] Holonomic drive
+    - [X] Joystick controls
+    - [ ] API
+- [ ] Stake piston control
+- [ ] Intake control
 - [ ] Autonomous
+- [ ] Autonomous skills

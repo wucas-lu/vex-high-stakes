@@ -1,8 +1,15 @@
 //! Implements a holonomic x-drive drivetrain.
 
-use vexide::prelude::*;
+// Original implementation by edjubuh
+// http://blog.elliotjb.com/
+// https://github.com/edjubuh/HolonomicXDrive-PROS
 
-use super::*;
+use core::f64::consts::PI;
+
+use libm::{atan2, sqrt};
+use vexide::{devices::controller::JoystickState, prelude::*};
+
+use super::{BrakeMode, *};
 
 pub const PI_OVER_FOUR: f64 = PI / 4.0;
 pub const MAX_MOTOR_SPEED: f64 = 127.0;
@@ -11,6 +18,7 @@ pub const DEADBAND: f64 = 20.0;
 /**
     Radian heading values that can be used with holonomic drivetrains.
 */
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HolonomicHeading {
     North,
     Northeast,
@@ -23,16 +31,16 @@ pub enum HolonomicHeading {
 }
 
 impl From<HolonomicHeading> for f64 {
-    fn from(heading: Heading) -> Self {
+    fn from(heading: HolonomicHeading) -> Self {
         match heading {
             HolonomicHeading::North => 0.0_f64,
             HolonomicHeading::Northeast => PI_OVER_FOUR,
-            HolonomicHeading::East => PI / 2.0,
-            HolonomicHeading::Southeast => 3.0 * PI / 4.0,
+            HolonomicHeading::East => PI / 2.0_f64,
+            HolonomicHeading::Southeast => 3.0_f64 * PI / 4.0_f64,
             HolonomicHeading::South => PI,
-            HolonomicHeading::Southwest => 5.0 * PI / 4.0,
-            HolonomicHeading::West => 3.0 * PI / 2.0,
-            HolonomicHeading::Northwest => 7.0 * PI / 4.0,
+            HolonomicHeading::Southwest => 5.0_f64 * PI / 4.0_f64,
+            HolonomicHeading::West => 3.0_f64 * PI / 2.0_f64,
+            HolonomicHeading::Northwest => 7.0_f64 * PI / 4.0_f64,
         }
     }
 }
@@ -70,22 +78,17 @@ pub fn calculate_holonomic_radians(
     radians: Option<f64>,
     speed: Option<f64>,
     rotation_speed: Option<f64>,
-) -> Option<HolonomicRadians> {
-    let radians = heading_radians.unwrap_or(0.0);
+) -> HolonomicRadians {
+    let radians = radians.unwrap_or(0.0);
     let speed = speed.unwrap_or(1.0).clamp(0.0, 1.0);
     let rotation_speed = rotation_speed.unwrap_or(0.0).clamp(-MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
 
     if speed <= 0.0 {
         if rotation_speed > DEADBAND || rotation_speed < -DEADBAND {
-            return Some(HolonomicRadians::new(
-                rotation_speed,
-                rotation_speed,
-                rotation_speed,
-                rotation_speed,
-            ));
+            return HolonomicRadians::new(rotation_speed, rotation_speed, rotation_speed, rotation_speed);
         }
 
-        return Some(HolonomicRadians::new(0.0, 0.0, 0.0, 0.0));
+        return HolonomicRadians::new(0.0, 0.0, 0.0, 0.0);
     }
 
     let fl = -MAX_MOTOR_SPEED * (PI_OVER_FOUR - radians).cos() + rotation_speed;
@@ -93,10 +96,20 @@ pub fn calculate_holonomic_radians(
     let rl = -MAX_MOTOR_SPEED * (PI_OVER_FOUR + radians).cos() + rotation_speed;
     let rr = MAX_MOTOR_SPEED * (PI_OVER_FOUR - radians).cos() + rotation_speed;
 
-    let max_value = [fl, fr, rl, rr].into_iter().reduce(f64::max)?;
+    let max_value = [fl, fr, rl, rr].into_iter().reduce(f64::max).unwrap();
     let speed = speed * (MAX_MOTOR_SPEED / max_value);
 
-    Some(HolonomicRadians::new(fl * speed, fr * speed, rl * speed, rr * speed))
+    HolonomicRadians::new(fl * speed, fr * speed, rl * speed, rr * speed)
+}
+
+pub fn radians_from_controller_joystick(joystick: JoystickState) -> f64 {
+    atan2(joystick.y(), joystick.x())
+}
+
+pub fn speed_from_controller_joystick(joystick: JoystickState) -> f64 {
+    (sqrt(joystick.x().powf(2.0_f64) + joystick.y().powf(2.0_f64)) / MAX_MOTOR_SPEED)
+        .min(1.0_f64)
+        .max(0.0_f64)
 }
 
 #[derive(Debug)]
@@ -127,8 +140,7 @@ impl HolonomicDrivetrain {
     }
 
     pub fn set(&mut self, radians: Option<f64>, speed: Option<f64>, rotation_speed: Option<f64>) -> Result<()> {
-        let radians = calculate_holonomic_radians(radians, speed, rotation_speed)
-            .ok_or("failed to calculate holonomic radians")?;
+        let radians = calculate_holonomic_radians(radians, speed, rotation_speed);
 
         self.front_left_motor.set_velocity(radians.front_left as i32)?;
         self.front_right_motor.set_velocity(radians.front_right as i32)?;
@@ -139,8 +151,9 @@ impl HolonomicDrivetrain {
     }
 }
 
+#[expect(unused)]
 impl Drivetrain for HolonomicDrivetrain {
-    async fn drive(&self, direction: DriveDirection) -> Result<()> {
+    async fn drive(&mut self, direction: DriveDirection) -> Result<()> {
         self.set(
             Some(
                 match direction {
@@ -157,51 +170,51 @@ impl Drivetrain for HolonomicDrivetrain {
     }
 
     async fn drive_for(
-        &self,
+        &mut self,
         distance: f64,
         direction: Option<DriveDirection>,
         unit: Option<DistanceUnit>,
     ) -> Result<()> {
-        todo!("not implemented")
+        todo!()
     }
 
-    async fn stop(&self, brake_mode: Option<BrakeMode>) -> Result<()> {
-        todo!("not implemented")
+    async fn turn(&mut self, direction: TurnDirection) -> Result<()> {
+        todo!()
     }
 
-    async fn turn(&self, direction: TurnDirection) -> Result<()> {
-        todo!("not implemented")
+    async fn turn_for(&mut self, angle: f64, unit: Option<RotationUnit>) -> Result<()> {
+        todo!()
     }
 
-    async fn turn_for(&self, angle: f64, unit: Option<RotationUnit>) -> Result<()> {
-        todo!("not implemented")
+    fn stop(&mut self, brake_mode: Option<BrakeMode>) -> Result<()> {
+        todo!()
     }
 
     fn is_spinning(&self) -> Result<bool> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn is_done(&self) -> Result<bool> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn velocity(&self, unit: Option<VelocityUnit>) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn torque(&self, unit: Option<TorqueUnit>) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn current(&self, unit: Option<CurrentUnit>) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn efficiency_percent(&self) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn power_watts(&self) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 }

@@ -16,7 +16,7 @@ fn process_controller_state(robot: &mut CompetitionRobot, controller: Controller
         Some(radians_from_controller_joystick(controller.left_stick)),
         Some(PI / 2.0 - speed_from_controller_joystick(controller.left_stick)),
         None,
-    );
+    )?;
 
     if controller.button_x.is_now_pressed() {
         if robot.stake_piston.is_high()? {

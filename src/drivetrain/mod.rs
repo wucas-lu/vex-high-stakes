@@ -73,12 +73,12 @@ pub enum BrakeMode {
 */
 #[allow(async_fn_in_trait)]
 pub trait Drivetrain {
-    async fn drive(&self, direction: DriveDirection) -> Result<()>;
+    async fn drive(&mut self, direction: DriveDirection) -> Result<()>;
     #[rustfmt::skip]
-    async fn drive_for(&self, distance: f64, direction: Option<DriveDirection>, unit: Option<DistanceUnit>) -> Result<()>;
-    async fn turn(&self, direction: TurnDirection) -> Result<()>;
-    async fn turn_for(&self, angle: f64, unit: Option<RotationUnit>) -> Result<()>;
-    fn stop(&self, brake_mode: Option<BrakeMode>) -> Result<()>;
+    async fn drive_for(&mut self, distance: f64, direction: Option<DriveDirection>, unit: Option<DistanceUnit>) -> Result<()>;
+    async fn turn(&mut self, direction: TurnDirection) -> Result<()>;
+    async fn turn_for(&mut self, angle: f64, unit: Option<RotationUnit>) -> Result<()>;
+    fn stop(&mut self, brake_mode: Option<BrakeMode>) -> Result<()>;
     fn is_spinning(&self) -> Result<bool>;
     fn is_done(&self) -> Result<bool>;
     fn velocity(&self, unit: Option<VelocityUnit>) -> Result<f64>;

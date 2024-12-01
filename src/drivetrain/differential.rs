@@ -1,8 +1,11 @@
 //! Implements a differential tank drivetrain.
 
+// I'm lazy
+#![expect(unused)]
+
 use vexide::prelude::*;
 
-use super::*;
+use super::{BrakeMode, *};
 
 #[derive(Debug)]
 pub struct DifferentialDrivetrain {
@@ -23,57 +26,58 @@ impl DifferentialDrivetrain {
     }
 }
 
+#[expect(unused)]
 impl Drivetrain for DifferentialDrivetrain {
-    async fn drive(&self, direction: DriveDirection) -> Result<()> {
-        todo!("not implemented")
+    async fn drive(&mut self, direction: DriveDirection) -> Result<()> {
+        todo!()
     }
 
     async fn drive_for(
-        &self,
+        &mut self,
         distance: f64,
         direction: Option<DriveDirection>,
         unit: Option<DistanceUnit>,
     ) -> Result<()> {
-        todo!("not implemented")
+        todo!()
     }
 
-    async fn stop(&self, brake_mode: Option<BrakeMode>) -> Result<()> {
-        todo!("not implemented")
+    async fn turn(&mut self, direction: TurnDirection) -> Result<()> {
+        todo!()
     }
 
-    async fn turn(&self, direction: TurnDirection) -> Result<()> {
-        todo!("not implemented")
+    async fn turn_for(&mut self, angle: f64, unit: Option<RotationUnit>) -> Result<()> {
+        todo!()
     }
 
-    async fn turn_for(&self, angle: f64, unit: Option<RotationUnit>) -> Result<()> {
-        todo!("not implemented")
+    fn stop(&mut self, brake_mode: Option<BrakeMode>) -> Result<()> {
+        todo!()
     }
 
     fn is_spinning(&self) -> Result<bool> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn is_done(&self) -> Result<bool> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn velocity(&self, unit: Option<VelocityUnit>) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn torque(&self, unit: Option<TorqueUnit>) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn current(&self, unit: Option<CurrentUnit>) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn efficiency_percent(&self) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 
     fn power_watts(&self) -> Result<f64> {
-        todo!("not implemented")
+        todo!()
     }
 }
