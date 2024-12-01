@@ -1,6 +1,6 @@
 <!-- TODO: make this prettier -->
 
-# VRC High Stakes 24-25
+# Höppenheimer, Destroyer of High Stakes
 
 <img src="./gh-assets/wardrobe.png" width="350px" align="right"/>
 
