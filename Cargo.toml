@@ -1,24 +1,5 @@
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[package]
-name = "vex-high-stakes"
-version = "0.1.0"
-edition = "2021"
-
-[features]
-default = ["competition"]
-competition = []
-skills = []
-
-# These fields configure default behavior for uploads with `cargo v5`.
-[package.metadata.v5]
-slot = 3
-icon = "cool-x"
-compress = true
-
-[dependencies]
-anyhow = { version = "1.0.93", default-features = false }
-# evian = "0.3.0-beta.1"
-libm = { version = "0.2.11", default-features = false }
-log = "0.4.22"
-vexide = "0.5.0-rc.2"
+[workspace]
+resolver = "2"
+members = ["crates/*"]

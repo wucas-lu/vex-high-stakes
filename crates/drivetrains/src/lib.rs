@@ -13,10 +13,10 @@ pub mod prelude {
     pub use crate::{
         angle::{Angle, IntoAngle},
         holonomic::{
-            speed_from_controller_joysticks, speed_from_single_controller_joystick, Holonomic, Radian,
+            speed_from_controller_joysticks, speed_from_single_controller_joystick, Holonomic,
             DEADBAND as HOLONOMIC_MOTOR_DEADBAND, MAX_MOTOR_SPEED as HOLONOMIC_MAX_MOTOR_SPEED,
         },
-        CurrentUnit, DistanceUnit, DriveDirection, Drivetrain, RotationUnit, TorqueUnit, TurnDirection, VelocityUnit,
+        Brake, CurrentUnit, DistanceUnit, DriveDirection, Drivetrain, TorqueUnit, TurnDirection, VelocityUnit,
         VoltageUnit,
     };
 }

@@ -7,11 +7,11 @@ use vexide::prelude::*;
 use crate::prelude::*;
 
 #[expect(unused)]
-pub async fn autonomous_control(robot: &mut CompetitionRobot) -> Result<()> {
+pub async fn autonomous_control(robot: &mut Robot) -> Result<()> {
     Ok(())
 }
 
 #[expect(unused)]
-pub async fn autonomous_skills(robot: &mut CompetitionRobot) -> Result<()> {
+pub async fn autonomous_skills(robot: &mut Robot) -> Result<()> {
     Ok(())
 }

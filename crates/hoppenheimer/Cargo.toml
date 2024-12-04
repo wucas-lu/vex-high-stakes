@@ -1,0 +1,26 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name = "hoppenheimer"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["competition"]
+competition = []
+skills = []
+
+# These fields configure default behavior for uploads with `cargo v5`.
+[package.metadata.v5]
+slot = 1
+icon = "pizza"
+# TODO: Swap to this before nationals so we don't get DQ for Rusting
+# icon = "vexcode-cpp"
+compress = true
+
+[dependencies]
+anyhow = { version = "1.0.93", default-features = false }
+drivetrains = { path = "../drivetrains" }
+evian = "0.3.0-beta.2"
+log = "0.4.22"
+vexide = "0.5.1"

@@ -1,16 +1,23 @@
 //! Angular values
 // Thanks vexide/evian I didn't feel like writing most of this
 
-use core::f64::{
-    self,
-    consts::{PI, TAU},
+use core::{
+    f64::{
+        self,
+        consts::{PI, TAU},
+    },
+    ops::*,
+};
+
+use vexide::{
+    devices::controller::{ControllerState, JoystickState},
+    prelude::Float,
 };
 
 const PI_OVER_FOUR: f64 = PI / 4.0_f64;
-const PI_OVER_HUNDRED_EIGHTY: f64 = PI / 180.0_f64;
 const HUNDRED_EIGHTY_OVER_PI: f64 = 180.0_f64 / PI;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Angle(f64);
 
 impl Angle {
@@ -33,12 +40,12 @@ impl Angle {
 
     #[inline]
     #[must_use]
-    pub const fn from_radians(radians: f64) -> Self {
+    pub fn from_radians(radians: f64) -> Self {
         Self(radians)
     }
 
     #[must_use]
-    pub const fn from_gradians(gradians: f64) -> Self {
+    pub fn from_gradians(gradians: f64) -> Self {
         Self(gradians * (PI / 180.0))
     }
 
@@ -183,12 +190,6 @@ impl Angle {
                 + controller.right_stick.y().atan2(controller.right_stick.x()))
                 / 2.0_f64,
         )
-    }
-}
-
-impl From<Position> for Angle {
-    fn from(value: Position) -> Self {
-        Self::from_degrees(value.as_degrees())
     }
 }
 

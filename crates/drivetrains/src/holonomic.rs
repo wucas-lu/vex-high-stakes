@@ -1,5 +1,9 @@
 //! Holonomic X drive
 
+use core::f64::consts::PI;
+
+use anyhow::Result;
+use log::info;
 use vexide::{
     devices::controller::{ControllerState, JoystickState},
     prelude::*,
@@ -7,6 +11,7 @@ use vexide::{
 
 use crate::prelude::{Angle, *};
 
+const PI_OVER_FOUR: f64 = PI / 4.0_f64;
 pub const MAX_MOTOR_SPEED: f64 = 127.0_f64;
 pub const DEADBAND: f64 = 20.0_f64;
 
@@ -92,38 +97,34 @@ impl Holonomic {
 }
 
 #[expect(unused)]
-impl Drivetrain for HolonomicDrivetrain {
+impl Drivetrain for Holonomic {
     async fn drive(&mut self, direction: DriveDirection) -> Result<()> {
         self.set(
             match direction {
-                DriveDirection::Forward => Radian::NORTH,
-                DriveDirection::Reverse => Radian::SOUTH,
-                DriveDirection::Left => Radian::WEST,
-                DriveDirection::Right => Radian::EAST,
+                DriveDirection::Forward => Angle::NORTH,
+                DriveDirection::Reverse => Angle::SOUTH,
+                DriveDirection::Left => Angle::WEST,
+                DriveDirection::Right => Angle::EAST,
             },
-            Some(self.velocity),
+            // Some(self.velocity),
+            Some(50.0_f64),
             None,
         )
     }
 
-    async fn drive_for(
-        &mut self,
-        distance: f64,
-        direction: Option<DriveDirection>,
-        unit: Option<DistanceUnit>,
-    ) -> Result<()> {
+    async fn drive_for(&mut self, distance: f64, heading: Angle, unit: DistanceUnit) -> Result<()> {
         todo!()
     }
 
-    async fn turn(&mut self, direction: TurnDirection) -> Result<()> {
+    async fn turn(&mut self, turn: Angle) -> Result<()> {
         todo!()
     }
 
-    async fn turn_for(&mut self, angle: f64, unit: Option<RotationUnit>) -> Result<()> {
+    async fn turn_for(&mut self, turn: Angle) -> Result<()> {
         todo!()
     }
 
-    fn stop(&mut self, brake_mode: Option<BrakeMode>) -> Result<()> {
+    fn stop(&mut self, mode: Brake) -> Result<()> {
         todo!()
     }
 
