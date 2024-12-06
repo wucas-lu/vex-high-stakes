@@ -14,8 +14,6 @@ skills = []
 [package.metadata.v5]
 slot = 1
 icon = "pizza"
-# TODO: Swap to this before nationals so we don't get DQ for Rusting
-# icon = "vexcode-cpp"
 compress = true
 
 [dependencies]

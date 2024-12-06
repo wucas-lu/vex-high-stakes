@@ -7,7 +7,7 @@ use vexide::{
 };
 
 pub fn rgb_from_hex(hex: &str) -> Result<Rgb<u8>> {
-    let big_int = hex.parse::<i32>()?;
+    let big_int = hex.replace("#", "").parse::<i32>()?;
     Ok(Rgb::new(
         ((big_int >> 16_i32) & 255_i32) as u8,
         ((big_int >> 8_i32) & 255_i32) as u8,
@@ -19,11 +19,11 @@ pub fn draw_oppenheimer(display: &mut Display) -> Result<()> {
     let mut x = 0_i16;
     let mut y = 0_i16;
 
-    for index in 0..5074 {
+    for index in 0..IMAGE_INDICES.len() {
         let indice = IMAGE_INDICES[index];
         let count = IMAGE_COUNTS[index];
 
-        // if indice >= 0 {
+        if indice >= 0 {
             let hex = IMAGE_COLORS[indice as usize];
             for _ in 0..count {
                 Rect::from_dimensions([x, y], 1, 1).fill(display, rgb_from_hex(hex)?);
@@ -34,13 +34,13 @@ pub fn draw_oppenheimer(display: &mut Display) -> Result<()> {
                     y += 1;
                 }
             }
-        // } else {
-        //     x += count;
-        //     while x >= 480 {
-        //         x -= 480;
-        //         y += 1
-        //     }
-        // }
+        } else {
+            x += count;
+            while x >= 480 {
+                x -= 480;
+                y += 1
+            }
+        }
     }
 
     Ok(())

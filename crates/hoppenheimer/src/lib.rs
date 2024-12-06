@@ -15,7 +15,7 @@
 
 use drivetrains::prelude::*;
 use log::info;
-use vexide::prelude::*;
+use vexide::{devices::smart::GpsSensor, prelude::*};
 
 pub mod autonomous;
 pub mod driver;
@@ -23,19 +23,27 @@ pub mod macros;
 pub mod screen;
 
 pub mod prelude {
-    pub use crate::{set_velocities, Robot, screen::draw_oppenheimer};
+    pub use crate::{screen::draw_oppenheimer, set_velocities, Robot};
 }
 
 #[derive(Debug)]
 pub struct Robot {
     pub controller: Controller,
+
+    pub gps: GpsSensor,
+    pub inertial: InertialSensor,
+    pub intake_optic: OpticalSensor,
+    pub mogo_distance: DistanceSensor,
+
+    pub intake: Motor,
+    pub intake_lift: Motor,
+    pub left_robot_lift: Motor,
+    pub right_robot_lift: Motor,
+
     pub drivetrain: Holonomic,
-    // pub intake_motor: Motor,
-    // pub arm_motor: Motor,
-    // pub stake_piston: Pneumatic,
-    // pub gps: GpsSensor,
-    // pub inertial: InertialSensor,
-    // pub ringsort_optical: OpticalSensor,
+
+    pub mogo_solenoid: AdiDigitalOut,
+    pub intake_solenoid: AdiDigitalOut,
 }
 
 impl Compete for Robot {

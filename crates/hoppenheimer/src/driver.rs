@@ -3,7 +3,7 @@
 use core::{f64::consts::PI, time::Duration};
 
 use anyhow::{Context, Result};
-use drivetrains::prelude::*;
+use drivetrains::{holonomic::holonomic_motor_velocities, prelude::*};
 // use log::info;
 use vexide::{devices::controller::ControllerState, prelude::*};
 
@@ -14,6 +14,14 @@ use crate::prelude::*;
 
 fn process_controller_state(robot: &mut Robot, controller: ControllerState) -> Result<()> {
     println!("ANGLE: {}", Angle::from_controller_joysticks(&controller).as_degrees());
+    println!(
+        "SETTING MOTORS VELOCITIES TO {:#?}",
+        holonomic_motor_velocities(
+            Angle::from_controller_joysticks(&controller),
+            Some(PI / 2.0 - speed_from_controller_joysticks(&controller)),
+            None
+        )
+    );
 
     robot.drivetrain.set(
         Angle::from_controller_joysticks(&controller),
